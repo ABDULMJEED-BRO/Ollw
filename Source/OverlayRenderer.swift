@@ -157,7 +157,6 @@ class OverlayRenderer {
         guard let layer = trajectoryLayer else { return }
         
         for ball in balls where ball.id != -1 && !ball.isCueBall {
-            // حساب أبعاد الدائرة المحيطة بالكرة بناءً على حجمها وموقعها
             let radius = CGFloat(ball.radius > 0 ? ball.radius : 12)
             let rect = CGRect(x: CGFloat(ball.x) - radius,
                               y: CGFloat(ball.y) - radius,
@@ -171,7 +170,7 @@ class OverlayRenderer {
             // تحديد الألوان بناءً على تصنيف الشبكة العصبية للكرة
             if ball.owner == .myBall {
                 circleLayer.strokeColor = UIColor.green.withAlphaComponent(0.8).cgColor
-                circleLayer.fillColor = UIColor.green.withAlphaComponent(0.1)
+                circleLayer.fillColor = UIColor.green.withAlphaComponent(0.1).cgColor // تم تصحيح الخطأ هنا بإضافة .cgColor
             } else if ball.owner == .opponentBall {
                 circleLayer.strokeColor = UIColor.red.withAlphaComponent(0.8).cgColor
                 circleLayer.fillColor = UIColor.red.withAlphaComponent(0.1).cgColor
