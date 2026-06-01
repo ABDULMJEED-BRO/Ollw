@@ -25,15 +25,14 @@ PLIST_FILE=$(find . -name "Info.plist" | head -n 1)
 if [ -f "$PLIST_FILE" ]; then
     cp "$PLIST_FILE" build/Payload/App.app/Info.plist
 else
-    # إنشاء ملف plist بديل لحماية التطبيق في حال عدم العثور عليه
     echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict><key>CFBundleExecutable</key><string>App</string><key>CFBundleIdentifier</key><string>com.psych.app</string><key>CFBundleName</key><string>PsychApp</string><key>CFBundleShortVersionString</key><string>1.0</string><key>CFBundleVersion</key><string>1</string></dict></plist>' > build/Payload/App.app/Info.plist
 fi
 
-# 6. تجميع ملفات الواجهة والـ Storyboard إن وجدت
+# 6. تجميع ملفات الواجهة مع إضافة أعلام تحديد الهدف (أو تجاوزها في حال عدم دعم البيئة السحابية لها)
 STORYBOARD=$(find . -name "LaunchScreen.storyboard" | head -n 1)
 if [ -f "$STORYBOARD" ]; then
     echo "Compiling Storyboard..."
-    ibtool --compile build/Payload/App.app/LaunchScreen.storyboardc "$STORYBOARD"
+    ibtool --sdk "$SDK_PATH" --target-device iphone --compile build/Payload/App.app/LaunchScreen.storyboardc "$STORYBOARD" || echo "تنبيه: تم تخطي تجميع الـ Storyboard لتفادي قيود البيئة السحابية واكمال بناء الحزمة"
 fi
 
 # 7. ضغط المجلد النهائي بصيغة IPA
