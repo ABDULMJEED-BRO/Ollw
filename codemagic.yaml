@@ -6,8 +6,10 @@ workflows:
     scripts:
       - name: Set permissions and build
         script: |
-          chmod +x Build.command
-          ./Build.command
+          # البحث عن ملف البناء وتشغيله أينما كان داخل المجلدات
+          find . -name "Build.command" -exec chmod +x {} \;
+          find . -name "Build.command" -exec {} \;
     artifacts:
       - "*.ipa"
       - "build/*.ipa"
+      - "**/*.ipa"
