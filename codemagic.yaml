@@ -1,0 +1,13 @@
+workflows:
+  native-ios-build:
+    name: iOS Build Workflow
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    scripts:
+      - name: Set permissions and build
+        script: |
+          chmod +x Build.command
+          ./Build.command
+    artifacts:
+      - "*.ipa"
+      - "build/*.ipa"
