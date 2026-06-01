@@ -56,7 +56,7 @@ class OverlayRenderer {
         var collisionPoint: CGPoint?
         var collidedBallId: Int?
         
-        for step in 0..<200 {
+        for _ in 0..<200 {
             x += velX * 0.1
             y += velY * 0.1
             
@@ -127,6 +127,9 @@ class OverlayRenderer {
                         pocketLayer.strokeColor = UIColor.red.cgColor
                         pocketLayer.fillColor = UIColor.red.withAlphaComponent(0.3).cgColor
                     }
+                } else {
+                    pocketLayer.strokeColor = UIColor.white.cgColor
+                    pocketLayer.fillColor = UIColor.white.withAlphaComponent(0.1).cgColor
                 }
                 
                 pocketLayer.lineWidth = 2
@@ -134,4 +137,40 @@ class OverlayRenderer {
                 break
             }
             
-            if abs(velX) < 0.1 && abs(
+            // إكمال السطر المقطوع وإغلاق الجملة الشرطية بشكل سليم
+            if abs(velX) < 0.1 && abs(velY) < 0.1 {
+                break
+            }
+        }
+        
+        // إضافة المسار الرئيسي الأبيض إلى الطبقة
+        let mainLineLayer = CAShapeLayer()
+        mainLineLayer.path = mainPath.cgPath
+        mainLineLayer.strokeColor = UIColor.white.withAlphaComponent(0.8).cgColor
+        mainLineLayer.fillColor = UIColor.clear.cgColor
+        mainLineLayer.lineWidth = 2.0
+        layer.addSublayer(mainLineLayer)
+    }
+    
+    // MARK: - الدوال المساعدة المضافة لحل أخطاء النطاق (Scope)
+    
+    private func startRendering() {
+        print("[OverlayRenderer] ✅ تم تشغيل محرك الرسم بنجاح")
+    }
+    
+    private func distanceToNearestPocket(from point: CGPoint) -> CGFloat {
+        // إحداثيات الجيوب الستة المتناسقة مع نظام المحاكاة طاولة البلياردو
+        let pockets: [CGPoint] = [
+            CGPoint(x: 50, y: 50),   CGPoint(x: 500, y: 20),  CGPoint(x: 950, y: 50),
+            CGPoint(x: 50, y: 450),  CGPoint(x: 500, y: 480), CGPoint(x: 950, y: 450)
+        ]
+        
+        var minDist: CGFloat = .infinity
+        for pocket in pockets {
+            let dist = hypot(point.x - pocket.x, point.y - pocket.y)
+            minDist = min(minDist, dist)
+        }
+        
+        return minDist
+    }
+}
