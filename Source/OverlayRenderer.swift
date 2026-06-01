@@ -42,6 +42,7 @@ class OverlayRenderer {
         
         // مسح المسارات القديمة
         layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        ballIndicatorLayers.removeAll() // تنظيف الذاكرة المؤقتة للمؤشرات القديمة
         
         let rad = angle * .pi / 180
         var x = CGFloat(startX)
@@ -137,7 +138,6 @@ class OverlayRenderer {
                 break
             }
             
-            // إكمال السطر المقطوع وإغلاق الجملة الشرطية بشكل سليم
             if abs(velX) < 0.1 && abs(velY) < 0.1 {
                 break
             }
@@ -152,14 +152,49 @@ class OverlayRenderer {
         layer.addSublayer(mainLineLayer)
     }
     
-    // MARK: - الدوال المساعدة المضافة لحل أخطاء النطاق (Scope)
+    // MARK: - رسم مؤشرات الكرات (المستدعاة من AutoPlayManager)
+    func drawBallIndicators(balls: [BallData]) {
+        guard let layer = trajectoryLayer else { return }
+        
+        for ball in balls where ball.id != -1 && !ball.isCueBall {
+            // حساب أبعاد الدائرة المحيطة بالكرة بناءً على حجمها وموقعها
+            let radius = CGFloat(ball.radius > 0 ? ball.radius : 12)
+            let rect = CGRect(x: CGFloat(ball.x) - radius,
+                              y: CGFloat(ball.y) - radius,
+                              width: radius * 2,
+                              height: radius * 2)
+            
+            let circlePath = UIBezierPath(ovalIn: rect)
+            let circleLayer = CAShapeLayer()
+            circleLayer.path = circlePath.cgPath
+            
+            // تحديد الألوان بناءً على تصنيف الشبكة العصبية للكرة
+            if ball.owner == .myBall {
+                circleLayer.strokeColor = UIColor.green.withAlphaComponent(0.8).cgColor
+                circleLayer.fillColor = UIColor.green.withAlphaComponent(0.1)
+            } else if ball.owner == .opponentBall {
+                circleLayer.strokeColor = UIColor.red.withAlphaComponent(0.8).cgColor
+                circleLayer.fillColor = UIColor.red.withAlphaComponent(0.1).cgColor
+            } else {
+                circleLayer.strokeColor = UIColor.blue.withAlphaComponent(0.5).cgColor
+                circleLayer.fillColor = UIColor.clear.cgColor
+            }
+            
+            circleLayer.lineWidth = 1.5
+            layer.addSublayer(circleLayer)
+            
+            // تخزين الطبقة للرجوع إليها لاحقاً عند الحاجة
+            ballIndicatorLayers[ball.id] = circleLayer
+        }
+    }
+    
+    // MARK: - الدوال المساعدة
     
     private func startRendering() {
         print("[OverlayRenderer] ✅ تم تشغيل محرك الرسم بنجاح")
     }
     
     private func distanceToNearestPocket(from point: CGPoint) -> CGFloat {
-        // إحداثيات الجيوب الستة المتناسقة مع نظام المحاكاة طاولة البلياردو
         let pockets: [CGPoint] = [
             CGPoint(x: 50, y: 50),   CGPoint(x: 500, y: 20),  CGPoint(x: 950, y: 50),
             CGPoint(x: 50, y: 450),  CGPoint(x: 500, y: 480), CGPoint(x: 950, y: 450)
