@@ -138,9 +138,9 @@ class NeuralAI {
         var bestAngle: Float = 0
         var bestPower: Float = 50
         
-        // تجربة زوايا مختلفة
-        for angle in stride(from: 0, to: 360, by: 1.0) {
-            for power in stride(from: 30, to: 100, by: 2.0) {
+        // تجربة زوايا مختلفة - تم استخدام Float لحل خطأ التجميع
+        for angle in stride(from: Float(0), to: Float(360), by: Float(1.0)) {
+            for power in stride(from: Float(30), to: Float(100), by: Float(2.0)) {
                 let score = evaluateShot(angle: angle, power: power, cueBall: cueBall, myBalls: myBalls, allBalls: allBalls)
                 
                 if score > bestScore {
@@ -165,8 +165,8 @@ class NeuralAI {
         var cueX = cueBall.x
         var cueY = cueBall.y
         
-        // تتبع المسار للعثور على أول تصادم
-        for step in 0..<100 {
+        // تتبع المسار للعثور على أول تصادم - تم إزالة تحذير step غير المستخدم
+        for _ in 0..<100 {
             cueX += velX * 0.1
             cueY += velY * 0.1
             
